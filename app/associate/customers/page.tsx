@@ -359,7 +359,7 @@ export default function AssocCustomers() {
                             </Badge>
 
                             {/* Hidden file input */}
-                            <input type="file" accept="image/*,.pdf"
+                            <input type="file" accept="image/jpeg,image/jpg,image/png,application/pdf"
                               ref={el => { fileRefs.current[d.id] = el; }}
                               className="hidden"
                               onChange={e => {

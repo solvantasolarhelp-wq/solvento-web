@@ -96,12 +96,22 @@ export async function registerAssociate(form: { name: string; aadhaar: string; e
 }
 
 // ── DOCUMENT UPLOAD (Supabase Storage) ───────────────────────────────────────
+const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
+
 export async function uploadDoc(
   file: File,
   customerId: string,
   docId: string
 ): Promise<{ url: string | null; error?: string }> {
-  const ext  = file.name.split(".").pop();
+  // Validate file type
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return { url: null, error: "Only JPG, PNG, and PDF files are allowed." };
+  }
+  // Validate file size (max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    return { url: null, error: "File size must be under 5MB." };
+  }
+  const ext  = file.name.split(".").pop()?.toLowerCase();
   const path = `${customerId}/${docId}.${ext}`;
 
   const { error } = await supabase.storage
