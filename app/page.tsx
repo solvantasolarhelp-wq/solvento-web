@@ -115,7 +115,7 @@ export default function MarketingHome() {
             </h1>
 
             <p className="text-white/80 text-base md:text-lg leading-relaxed max-w-lg font-sans">
-              Get PM Surya Ghar scheme subsidy on solar installation. MNRE approved installer in Jaipur, Rajasthan. Free site survey — installation in 15–20 days.
+              Get PM Surya Ghar scheme subsidy on solar installation. Trusted solar installer in Jaipur, Rajasthan. Free site survey — installation in 15–20 days.
             </p>
 
             <div className="flex flex-wrap gap-4 w-full sm:w-auto mt-2">
@@ -145,7 +145,7 @@ export default function MarketingHome() {
       {/* TRUST BAR */}
       <div className="bg-sol-navy border-t-2 border-sol-teal">
         <div className="max-w-6xl mx-auto px-6 py-3 flex flex-wrap items-center justify-around gap-4">
-          {[["🏛","MNRE","Approved"],["✅","PM Surya Ghar","Authorized"],["🛡","25-Year","Panel Warranty"],["★","4.9","Google Rating"],["⚡","Install in","15–20 Days"]].map(([icon,bold,rest]) => (
+          {[["✅","PM Surya Ghar","Authorized"],["🛡","25-Year","Panel Warranty"],["★","4.9","Google Rating"],["⚡","Install in","15–20 Days"]].map(([icon,bold,rest]) => (
             <div key={bold} className="flex items-center gap-2 text-white/70 text-xs">
               <span className="text-sol-teal text-base">{icon}</span>
               <span><strong className="text-white">{bold}</strong> {rest}</span>
@@ -209,7 +209,7 @@ export default function MarketingHome() {
             </div>
             {calcDone && (
               <div className="grid grid-cols-2 gap-3 mt-4">
-                {[["☀",kwp+" kWp","Recommended System","bg-sol-lt text-sol-teal"],["₹","₹"+(subsidy/1000)+"K","MNRE Subsidy","bg-amber-50 text-amber-700"],["💰","₹"+save.toLocaleString("en-IN"),"Monthly Savings","bg-green-50 text-green-700"],["📅",payback+" Yrs","Payback Period","bg-blue-50 text-blue-700"]].map(([icon,v,l,cls]) => (
+                {[["☀",kwp+" kWp","Recommended System","bg-sol-lt text-sol-teal"],["₹","₹"+(subsidy/1000)+"K","PM Subsidy","bg-amber-50 text-amber-700"],["💰","₹"+save.toLocaleString("en-IN"),"Monthly Savings","bg-green-50 text-green-700"],["📅",payback+" Yrs","Payback Period","bg-blue-50 text-blue-700"]].map(([icon,v,l,cls]) => (
                   <div key={l} className={`rounded-xl p-3 text-center ${cls}`}>
                     <div className="text-xl font-bold">{v}</div>
                     <div className="text-[10px] mt-0.5 opacity-70">{l}</div>
@@ -308,7 +308,7 @@ export default function MarketingHome() {
               <div className="w-9 h-9 rounded-full overflow-hidden bg-white"><Image src="/logo.jpg" alt="" width={36} height={36} className="object-contain"/></div>
               <div><div className="text-white font-bold text-sm">SOLVANTA</div><div className="text-sol-teal text-[9px] tracking-widest">SOLAR ENERGY</div></div>
             </div>
-            <p className="text-white/40 text-xs leading-relaxed">Jaipur's most trusted MNRE-approved solar energy company. PM Surya Ghar authorized installer. GST: 08APCPB7272G1Z1</p>
+            <p className="text-white/40 text-xs leading-relaxed">Jaipur's most trusted solar energy company. PM Surya Ghar authorized installer. GST: 08APCPB7272G1Z1</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-8 text-xs text-white/50">
             <div><div className="text-white/80 font-semibold mb-3">Quick Links</div>
@@ -328,7 +328,7 @@ export default function MarketingHome() {
         </div>
         <div className="max-w-6xl mx-auto mt-8 pt-5 border-t border-white/10 flex justify-between text-[10px] text-white/30 flex-wrap gap-2">
           <span>© 2025 Solvanta Solar Energy. All rights reserved.</span>
-          <span>MNRE Approved · PM Surya Ghar Authorized</span>
+          <span>PM Surya Ghar Authorized</span>
         </div>
       </footer>
 
