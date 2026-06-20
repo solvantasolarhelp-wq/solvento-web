@@ -2,123 +2,79 @@
 import { Topbar } from "@/components/shared/Topbar";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { mockOffers } from "@/lib/mock-data";
-import { fmt } from "@/lib/utils";
-import { 
-  Gift, 
-  Compass, 
-  Users, 
-  Smartphone, 
-  IndianRupee, 
-  Calendar, 
-  Target, 
-  CheckCircle2, 
-  Sparkles,
-  TrendingUp
-} from "lucide-react";
+import { useSupabase } from "@/hooks/useSupabase";
+import { getOffers } from "@/lib/db";
+import { Offer } from "@/lib/supabase";
+import { Trophy, Gift, Users, Loader2 } from "lucide-react";
 
-const tagStyles: Record<string, string> = {
-  HOT:    "bg-rose-500/10 text-rose-600 border border-rose-500/20",
-  NEW:    "bg-sky-500/10 text-sky-600 border border-sky-500/20",
-  BONUS:  "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20",
-  SPECIAL:"bg-violet-500/10 text-violet-600 border border-violet-500/20",
+const TAG_COLORS: Record<string, string> = {
+  HOT:     "bg-red-500/20 text-red-600 border-red-500/20",
+  NEW:     "bg-sol-teal/20 text-sol-teal border-sol-teal/20",
+  BONUS:   "bg-sol-gold/20 text-amber-700 border-sol-gold/20",
+  SPECIAL: "bg-purple-500/20 text-purple-700 border-purple-500/20",
 };
 
-const offerIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  trip: Compass,
-  referral: Users,
-  gift: Smartphone,
-  cash: IndianRupee,
+const TYPE_ICONS: Record<string, React.ReactNode> = {
+  trip:     <Trophy className="w-6 h-6" />,
+  gift:     <Gift className="w-6 h-6" />,
+  referral: <Users className="w-6 h-6" />,
+  cash:     <span className="text-xl font-black">₹</span>,
 };
 
 export default function AssocOffers() {
+  const { data, loading } = useSupabase<Offer[]>(getOffers);
+  const offers = data ?? [];
+
   return (
     <div className="gradient-bg min-h-screen pb-12">
-      <Topbar 
-        title="Offers & Rewards" 
-        subtitle="Special offers published by Admin — updated regularly"
-      />
-      
-      <div className="p-6 max-w-7xl mx-auto space-y-6">
-        {/* Eligibility Banner */}
-        <div className="glass-panel border-sol-teal/20 rounded-2xl px-5 py-4 text-emerald-700 text-xs flex items-center gap-3 shadow-md backdrop-blur-md">
-          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0 text-emerald-600">
-            <CheckCircle2 className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="font-extrabold text-sol-navy">Active Qualification:</span> You are currently eligible for all <span className="font-bold text-emerald-600">{mockOffers.length} active offers</span>. Complete targets below to claim them!
-          </div>
-        </div>
-
-        {/* Offers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {mockOffers.map((offer) => {
-            const IconComponent = offerIcons[offer.type] || Gift;
-            const progressVal = offer.type === "referral" ? 0 : 7; // Mock user progress
-            const remaining = Math.max(0, offer.target - progressVal);
-            const progressPercent = Math.min(100, (progressVal / offer.target) * 100);
-
-            return (
-              <Card key={offer.id} className="hover:scale-[1.01] active:scale-[0.99] cursor-pointer transition-all duration-200 flex flex-col justify-between h-full group">
-                <CardBody className="flex flex-col justify-between h-full space-y-5">
-                  <div>
-                    {/* Header */}
-                    <div className="flex items-start justify-between gap-3 mb-3.5">
-                      <div className="w-12 h-12 rounded-2xl bg-sol-lt/70 border border-sol-sl/20 flex items-center justify-center flex-shrink-0 text-sol-teal shadow-inner group-hover:bg-sol-teal/10 group-hover:text-sol-teal transition-all duration-300">
-                        <IconComponent className="w-5 h-5" />
-                      </div>
-                      <Badge className={tagStyles[offer.tag] || "bg-sol-lt text-sol-navy"}>
+      <Topbar title="Active Offers & Rewards" subtitle="Complete targets to claim bonuses" />
+      <div className="p-6 max-w-5xl mx-auto">
+        {loading ? (
+          <div className="flex justify-center py-16"><Loader2 className="w-7 h-7 animate-spin text-sol-teal" /></div>
+        ) : offers.length === 0 ? (
+          <div className="text-center py-16 text-sol-gray text-sm">No active offers right now.</div>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-5">
+            {offers.map(offer => (
+              <Card key={offer.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="bg-gradient-to-r from-sol-navy to-sol-dark p-5 flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-sol-gold/20 border border-sol-gold/30 flex items-center justify-center text-sol-gold flex-shrink-0">
+                    {TYPE_ICONS[offer.type] ?? <Trophy className="w-6 h-6" />}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge className={`text-[9px] border px-2 py-0.5 ${TAG_COLORS[offer.tag] ?? ""}`}>
                         {offer.tag}
                       </Badge>
+                      <span className="text-[10px] text-white/50 font-semibold">{offer.tier}</span>
                     </div>
-
-                    {/* Title & Desc */}
-                    <h3 className="font-extrabold text-sol-navy text-sm leading-snug tracking-tight mb-2 group-hover:text-sol-teal transition-colors">
-                      {offer.title}
-                    </h3>
-                    <p className="text-xs text-sol-navy/70 leading-relaxed font-semibold">
-                      {offer.description}
-                    </p>
+                    <div className="text-white font-extrabold text-sm leading-tight">{offer.title}</div>
                   </div>
-
-                  {/* Progress & Target */}
-                  {offer.type !== "referral" && (
-                    <div className="bg-sol-lt/40 border border-sol-sl/20 rounded-xl p-3.5 space-y-2.5">
-                      <div className="flex justify-between text-[10px] font-bold">
-                        <span className="text-sol-navy flex items-center gap-1.5">
-                          <Target className="w-3.5 h-3.5 text-sol-teal" />
-                          Progress: {progressVal} / {offer.target}
-                        </span>
-                        <span className="text-sol-gray">
-                          {remaining === 0 ? "Target Achieved! 🎉" : `${remaining} more needed`}
-                        </span>
-                      </div>
-                      <div className="h-2 bg-sol-sl/45 rounded-full overflow-hidden shadow-inner">
-                        <div 
-                          className="h-full bg-gradient-to-r from-sol-teal to-teal-400 rounded-full transition-all duration-500 shadow-md shadow-sol-teal/20" 
-                          style={{ width: `${progressPercent}%` }}
-                        />
-                      </div>
+                </div>
+                <CardBody>
+                  <p className="text-xs text-sol-gray leading-relaxed mb-4">{offer.description}</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-sol-lt/60 rounded-xl p-3 text-center">
+                      <div className="font-black text-sol-navy text-sm">₹{offer.bonus.toLocaleString("en-IN")}</div>
+                      <div className="text-[9px] text-sol-gray font-bold uppercase mt-0.5">Bonus</div>
                     </div>
-                  )}
-
-                  {/* Footer */}
-                  <div className="flex items-center justify-between pt-4 border-t border-sol-sl/20 mt-auto">
-                    <div className="text-xs font-semibold text-sol-navy/70 flex items-center gap-1">
-                      Reward Value: <span className="font-black text-sm text-emerald-600 tracking-tight">{fmt(offer.bonus)}</span>
+                    <div className="bg-sol-lt/60 rounded-xl p-3 text-center">
+                      <div className="font-black text-sol-navy text-sm">{offer.target}</div>
+                      <div className="text-[9px] text-sol-gray font-bold uppercase mt-0.5">Target</div>
                     </div>
-                    <div className="text-[10px] font-bold text-sol-gray uppercase tracking-wider flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-sol-gray/70" />
-                      {offer.expiresAt === "2099-12-31" ? "Ongoing" : `Ends: ${new Date(offer.expiresAt).toLocaleDateString("en-IN", { day: 'numeric', month: 'short' })}`}
+                    <div className="bg-sol-lt/60 rounded-xl p-3 text-center">
+                      <div className="font-black text-sol-navy text-sm">
+                        {offer.expires_at === "2099-12-31" ? "∞" : new Date(offer.expires_at).toLocaleDateString("en-IN", { day:"2-digit", month:"short" })}
+                      </div>
+                      <div className="text-[9px] text-sol-gray font-bold uppercase mt-0.5">Expires</div>
                     </div>
                   </div>
                 </CardBody>
               </Card>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
