@@ -129,3 +129,6 @@ insert into offers (title, description, type, bonus, target, tier, expires_at, a
 ('June Star Performer — ₹5,000 Bonus + Jaipur Trip', 'Complete 10 installations in June 2025 and win ₹5,000 cash bonus + all-expenses-paid family trip to Jaipur sponsored by Solvanta Solar Energy.', 'trip', 5000, 10, 'All Tiers', '2025-06-30', true, 'HOT'),
 ('Referral Bonus — ₹3,000 per Referral', 'Refer a friend as associate. Once they complete 3 installations, you earn ₹3,000. No limit on referrals.', 'referral', 3000, 3, 'All Tiers', '2099-12-31', true, 'BONUS'),
 ('Digital Champion — Smartphone Prize', 'Upload all customer documents within 48 hours of installation for 3 consecutive months. Win Redmi smartphone worth ₹15,000.', 'gift', 15000, 3, 'Silver & Above', '2025-09-30', true, 'NEW');
+
+-- ── ADD pan_url column (run if associates table already exists) ───────────────
+alter table associates add column if not exists pan_url text;

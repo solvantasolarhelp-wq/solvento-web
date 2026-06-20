@@ -82,14 +82,19 @@ export async function getOffers(): Promise<Offer[]> {
 }
 
 // ── REGISTER ASSOCIATE (from signup form) ─────────────────────────────────────
-export async function registerAssociate(form: { name: string; aadhaar: string; email: string; mobile: string }): Promise<{ success: boolean; error?: string }> {
+export async function registerAssociate(form: {
+  name: string; aadhaar: string; email: string; mobile: string;
+  bank_account: string; pan_url?: string;
+}): Promise<{ success: boolean; error?: string }> {
   const { error } = await supabase.from("associates").insert([{
-    name: form.name,
-    aadhaar: form.aadhaar,
-    email: form.email,
-    mobile: form.mobile,
-    tier: "starter",
-    kyc: "pending",
+    name:         form.name,
+    aadhaar:      form.aadhaar,
+    email:        form.email,
+    mobile:       form.mobile,
+    bank_account: form.bank_account,
+    pan_url:      form.pan_url ?? null,
+    tier:         "starter",
+    kyc:          "pending",
   }]);
   if (error) return { success: false, error: error.message };
   return { success: true };
@@ -129,4 +134,29 @@ export async function getDocUrl(customerId: string, docId: string, ext = "jpg"):
     .from("kyc-docs")
     .getPublicUrl(`${customerId}/${docId}.${ext}`);
   return data?.publicUrl ?? null;
+}
+
+// ── UPLOAD ASSOCIATE DOC (pan card etc) ──────────────────────────────────────
+export async function uploadAssociateDoc(
+  file: File,
+  associateEmail: string,
+  docId: string
+): Promise<{ url: string | null; error?: string }> {
+  const ALLOWED = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
+  if (!ALLOWED.includes(file.type))
+    return { url: null, error: "Only JPG, PNG, PDF allowed." };
+  if (file.size > 5 * 1024 * 1024)
+    return { url: null, error: "File must be under 5MB." };
+
+  const ext  = file.name.split(".").pop()?.toLowerCase();
+  const path = `associates/${associateEmail.replace(/[@.]/g, "_")}/${docId}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from("kyc-docs")
+    .upload(path, file, { upsert: true });
+
+  if (error) return { url: null, error: error.message };
+
+  const { data } = supabase.storage.from("kyc-docs").getPublicUrl(path);
+  return { url: data.publicUrl };
 }
