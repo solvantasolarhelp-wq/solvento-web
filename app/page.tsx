@@ -25,7 +25,7 @@ export default function MarketingHome() {
   const [calcDone, setCalcDone] = useState(true);
   const [activeSection, setActiveSection] = useState("home");
 
-  const kwp = Math.max(1, Math.min(10, Math.floor(bill / 600)));
+  const kwp = bill >= 8000 ? 10 : bill >= 5000 ? 6 : bill >= 2000 ? 2 : 1;
   const subsidy = kwp >= 3 ? 78000 : kwp >= 2 ? 60000 : 30000;
   const save = Math.round(bill * 0.88);
   const cost = kwp * 51250 - subsidy;
