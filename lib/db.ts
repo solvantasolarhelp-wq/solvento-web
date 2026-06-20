@@ -94,3 +94,29 @@ export async function registerAssociate(form: { name: string; aadhaar: string; e
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
+
+// ── DOCUMENT UPLOAD (Supabase Storage) ───────────────────────────────────────
+export async function uploadDoc(
+  file: File,
+  customerId: string,
+  docId: string
+): Promise<{ url: string | null; error?: string }> {
+  const ext  = file.name.split(".").pop();
+  const path = `${customerId}/${docId}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from("kyc-docs")
+    .upload(path, file, { upsert: true });
+
+  if (error) return { url: null, error: error.message };
+
+  const { data } = supabase.storage.from("kyc-docs").getPublicUrl(path);
+  return { url: data.publicUrl };
+}
+
+export async function getDocUrl(customerId: string, docId: string, ext = "jpg"): Promise<string | null> {
+  const { data } = supabase.storage
+    .from("kyc-docs")
+    .getPublicUrl(`${customerId}/${docId}.${ext}`);
+  return data?.publicUrl ?? null;
+}
