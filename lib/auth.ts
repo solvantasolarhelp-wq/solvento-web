@@ -31,26 +31,31 @@ export function clearSession() {
     localStorage.removeItem(SESSION_KEY);
 }
 
-// ─── Admin Login via Supabase Auth ───────────────────────────────────────────
+// ─── Admin Login — whitelist by email ────────────────────────────────────────
+const ADMIN_EMAILS = ["admin@solvanta.in"];
+
 export async function adminLogin(
   email: string,
   password: string
 ): Promise<{ user: AuthUser | null; error?: string }> {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const trimmedEmail = email.toLowerCase().trim();
+
+  if (!ADMIN_EMAILS.includes(trimmedEmail))
+    return { user: null, error: "Access denied. Not an admin account." };
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: trimmedEmail,
+    password,
+  });
 
   if (error || !data.user)
-    return { user: null, error: "Invalid admin credentials." };
-
-  // Check admin role via user metadata
-  const role = data.user.user_metadata?.role as Role | undefined;
-  if (role !== "admin")
-    return { user: null, error: "Access denied. Admin only." };
+    return { user: null, error: "Invalid email or password." };
 
   const authUser: AuthUser = {
-    id:   data.user.id,
-    name: data.user.user_metadata?.name ?? "Admin",
+    id:    data.user.id,
+    name:  "Solvanta Admin",
     email: data.user.email!,
-    role: "admin",
+    role:  "admin",
   };
 
   saveSession(authUser);
@@ -62,7 +67,7 @@ export async function signOut() {
   clearSession();
 }
 
-// Keep mockLogin for associate portal (will migrate later)
+// ─── Associate mock login (will migrate to Supabase Auth later) ──────────────
 export function mockLogin(email: string, password: string): AuthUser | null {
   const MOCK: Record<string, AuthUser & { password: string }> = {
     "mohan@mail.com": {
