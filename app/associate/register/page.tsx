@@ -2,11 +2,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { User as UserIcon, Mail, Phone, CreditCard, CheckCircle } from "lucide-react";
+import { User as UserIcon, Mail, Phone, CreditCard, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { registerAssociate } from "@/lib/db";
 
 export default function AssociateRegister() {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({ name: "", aadhaar: "", email: "", mobile: "" });
 
   const fields = [
@@ -17,6 +20,19 @@ export default function AssociateRegister() {
   ] as const;
 
   const isValid = fields.every(f => form[f.key].trim().length > 0);
+
+  async function handleSubmit() {
+    if (!isValid || loading) return;
+    setLoading(true);
+    setError("");
+    const result = await registerAssociate(form);
+    setLoading(false);
+    if (result.success) {
+      setSubmitted(true);
+    } else {
+      setError(result.error?.includes("duplicate") ? "This email is already registered." : result.error || "Something went wrong. Please try again.");
+    }
+  }
 
   if (submitted) return (
     <div className="min-h-screen flex items-center justify-center px-4 gradient-bg-dark">
@@ -43,7 +59,6 @@ export default function AssociateRegister() {
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-sol-gold/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-md">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 rounded-full overflow-hidden bg-white shadow p-0.5">
             <Image src="/logo.jpg" alt="" width={40} height={40} className="object-contain rounded-full" />
@@ -54,7 +69,6 @@ export default function AssociateRegister() {
           </div>
         </div>
 
-        {/* Form Card */}
         <div className="glass-panel-dark rounded-3xl border border-white/10 shadow-2xl p-7">
           <h3 className="text-base font-extrabold text-white mb-1 tracking-tight flex items-center gap-2">
             <UserIcon className="w-5 h-5 text-sol-teal" /> Join as Associate
@@ -79,19 +93,25 @@ export default function AssociateRegister() {
             ))}
           </div>
 
+          {error && (
+            <div className="mt-4 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-xs text-red-400 font-semibold">
+              ⚠️ {error}
+            </div>
+          )}
+
           <div className="bg-sol-gold/10 border border-sol-gold/20 rounded-2xl px-4 py-3 text-xs text-sol-gold font-semibold flex items-center gap-2 mt-6">
             <span>⏳</span>
             <p className="leading-tight">After submission, Admin will review your application within 24–48 hours.</p>
           </div>
 
-          <Button
-            onClick={() => isValid && setSubmitted(true)}
-            variant="gold"
-            size="lg"
-            className={`w-full mt-5 rounded-xl text-xs font-bold py-3 transition-opacity ${!isValid ? "opacity-40 cursor-not-allowed" : ""}`}
+          <button
+            onClick={handleSubmit}
+            disabled={!isValid || loading}
+            className={`w-full mt-5 rounded-xl text-xs font-bold py-3 flex items-center justify-center gap-2 transition-all
+              ${isValid && !loading ? "bg-sol-gold text-sol-navy hover:opacity-90 cursor-pointer" : "bg-sol-gold/40 text-sol-navy/60 cursor-not-allowed"}`}
           >
-            Submit for Approval <CheckCircle className="w-4 h-4 ml-1 inline" />
-          </Button>
+            {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</> : <>Submit for Approval <CheckCircle className="w-4 h-4" /></>}
+          </button>
         </div>
 
         <p className="text-center text-white/40 text-xs mt-6 font-semibold">
