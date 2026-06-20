@@ -3,7 +3,12 @@
 -- Run this in Supabase SQL Editor
 -- ============================================================
 
--- 1. ASSOCIATES TABLE
+-- ── SEQUENCES FIRST ──────────────────────────────────────────
+create sequence if not exists associate_seq start 1;
+create sequence if not exists customer_seq start 1;
+create sequence if not exists quote_seq start 87;
+
+-- ── 1. ASSOCIATES ────────────────────────────────────────────
 create table if not exists associates (
   id text primary key default ('SOL-' || extract(year from now())::text || '-' || lpad((nextval('associate_seq'))::text, 3, '0')),
   name text not null,
@@ -24,10 +29,7 @@ create table if not exists associates (
   created_at timestamptz default now()
 );
 
--- sequence for associate IDs
-create sequence if not exists associate_seq start 1;
-
--- 2. CUSTOMERS TABLE
+-- ── 2. CUSTOMERS ─────────────────────────────────────────────
 create table if not exists customers (
   id text primary key default ('CUST-' || lpad((nextval('customer_seq'))::text, 3, '0')),
   associate_id text references associates(id) on delete set null,
@@ -48,9 +50,7 @@ create table if not exists customers (
   created_at timestamptz default now()
 );
 
-create sequence if not exists customer_seq start 1;
-
--- 3. QUOTES TABLE
+-- ── 3. QUOTES ────────────────────────────────────────────────
 create table if not exists quotes (
   id text primary key default ('SOL-QT-' || extract(year from now())::text || '-' || lpad((nextval('quote_seq'))::text, 3, '0')),
   associate_id text references associates(id) on delete set null,
@@ -67,9 +67,7 @@ create table if not exists quotes (
   created_at timestamptz default now()
 );
 
-create sequence if not exists quote_seq start 87;
-
--- 4. COMMISSIONS TABLE
+-- ── 4. COMMISSIONS ───────────────────────────────────────────
 create table if not exists commissions (
   id uuid primary key default gen_random_uuid(),
   associate_id text references associates(id) on delete cascade,
@@ -81,7 +79,7 @@ create table if not exists commissions (
   created_at timestamptz default now()
 );
 
--- 5. OFFERS TABLE
+-- ── 5. OFFERS ────────────────────────────────────────────────
 create table if not exists offers (
   id uuid primary key default gen_random_uuid(),
   title text not null,
@@ -97,7 +95,7 @@ create table if not exists offers (
 );
 
 -- ============================================================
--- ROW LEVEL SECURITY (RLS)
+-- ROW LEVEL SECURITY
 -- ============================================================
 alter table associates enable row level security;
 alter table customers enable row level security;
@@ -105,28 +103,27 @@ alter table quotes enable row level security;
 alter table commissions enable row level security;
 alter table offers enable row level security;
 
--- Allow all reads for now (tighten later with auth)
-create policy "Public read associates" on associates for select using (true);
-create policy "Public insert associates" on associates for insert with check (true);
-create policy "Public update associates" on associates for update using (true);
+create policy "Public read associates"   on associates  for select using (true);
+create policy "Public insert associates" on associates  for insert with check (true);
+create policy "Public update associates" on associates  for update using (true);
 
-create policy "Public read customers" on customers for select using (true);
-create policy "Public insert customers" on customers for insert with check (true);
-create policy "Public update customers" on customers for update using (true);
+create policy "Public read customers"    on customers   for select using (true);
+create policy "Public insert customers"  on customers   for insert with check (true);
+create policy "Public update customers"  on customers   for update using (true);
 
-create policy "Public read quotes" on quotes for select using (true);
-create policy "Public insert quotes" on quotes for insert with check (true);
-create policy "Public update quotes" on quotes for update using (true);
+create policy "Public read quotes"       on quotes      for select using (true);
+create policy "Public insert quotes"     on quotes      for insert with check (true);
+create policy "Public update quotes"     on quotes      for update using (true);
 
-create policy "Public read commissions" on commissions for select using (true);
+create policy "Public read commissions"  on commissions for select using (true);
 create policy "Public insert commissions" on commissions for insert with check (true);
 create policy "Public update commissions" on commissions for update using (true);
 
-create policy "Public read offers" on offers for select using (true);
-create policy "Public insert offers" on offers for insert with check (true);
+create policy "Public read offers"       on offers      for select using (true);
+create policy "Public insert offers"     on offers      for insert with check (true);
 
 -- ============================================================
--- SEED DATA — Offers
+-- SEED — Offers
 -- ============================================================
 insert into offers (title, description, type, bonus, target, tier, expires_at, active, tag) values
 ('June Star Performer — ₹5,000 Bonus + Jaipur Trip', 'Complete 10 installations in June 2025 and win ₹5,000 cash bonus + all-expenses-paid family trip to Jaipur sponsored by Solvanta Solar Energy.', 'trip', 5000, 10, 'All Tiers', '2025-06-30', true, 'HOT'),
