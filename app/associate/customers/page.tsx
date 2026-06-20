@@ -296,7 +296,7 @@ export default function AssocCustomers() {
                   ] as const).map(([label, key, options]) => (
                     <div key={key}>
                       <label className="text-[10px] font-bold text-sol-navy block mb-1.5 uppercase tracking-wider">{label}</label>
-                      <select value={(form as Record<string, string>)[key]}
+                      <select value={(form as unknown as Record<string, string>)[key]}
                         onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
                         className="glass-input w-full rounded-xl px-3.5 py-2.5 text-xs text-sol-navy font-semibold focus:outline-none">
                         {options.map(o => <option key={o}>{o}</option>)}
