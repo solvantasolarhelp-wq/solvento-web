@@ -232,7 +232,7 @@ export default function MarketingHome() {
             <div className="inline-flex items-center gap-2 bg-white border border-sol-sl px-3 py-1.5 rounded-full text-xs font-semibold text-sol-gray mb-3">
               <span className="text-sol-gold">★★★★★</span> 4.9 on Google Reviews · 320+ reviews
             </div>
-            <h2 className="text-3xl font-black text-sol-navy">What Our <span className="text-sol-teal">Customers Say</span></h2>
+            <h2 className="text-3xl font-black text-sol-navy">Our <span className="text-sol-teal">Testimonials</span></h2>
           </div>
           <div className="grid md:grid-cols-3 gap-5">
             {reviews.map(r => (
