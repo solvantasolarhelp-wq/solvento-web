@@ -266,7 +266,7 @@ export default function AssocCustomers() {
                       <label className="text-[10px] font-bold text-sol-navy block mb-1.5 uppercase tracking-wider">{label}</label>
                       <div className="relative">
                         <Icon className="absolute left-3.5 top-3 w-4 h-4 text-sol-gray/50" />
-                        <input type={type} value={(form as Record<string, string>)[key]}
+                        <input type={type} value={(form as unknown as Record<string, string>)[key]}
                           onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
                           placeholder={label.replace(" *", "")}
                           className="glass-input w-full rounded-xl pl-10 pr-4 py-2.5 text-xs text-sol-navy placeholder-sol-gray/50 font-semibold" />
