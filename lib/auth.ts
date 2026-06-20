@@ -1,4 +1,6 @@
-// Mock auth context — swap for Supabase when ready
+// ─── Supabase Auth helpers ────────────────────────────────────────────────────
+import { supabase } from "./supabase";
+
 export type Role = "admin" | "associate";
 
 export interface AuthUser {
@@ -10,40 +12,11 @@ export interface AuthUser {
   tier?: string;
 }
 
-// Mock users — replace with Supabase auth
-export const MOCK_USERS: Record<string, AuthUser & { password: string }> = {
-  "admin@solvanta.in": {
-    id: "admin-1",
-    name: "Admin User",
-    email: "admin@solvanta.in",
-    password: "admin123",
-    role: "admin",
-  },
-  "mohan@mail.com": {
-    id: "SOL-2025-003",
-    name: "Mohan Verma",
-    email: "mohan@mail.com",
-    password: "assoc123",
-    role: "associate",
-    associateId: "SOL-2025-003",
-    tier: "silver",
-  },
-};
-
-export function mockLogin(email: string, password: string): AuthUser | null {
-  const user = MOCK_USERS[email.toLowerCase()];
-  if (!user || user.password !== password) return null;
-  const { password: _, ...authUser } = user;
-  return authUser;
-}
-
-// Session helpers (localStorage-based for mock, swap with Supabase sessions)
 export const SESSION_KEY = "solvanta_user";
 
 export function saveSession(user: AuthUser) {
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined")
     localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-  }
 }
 
 export function getSession(): AuthUser | null {
@@ -54,7 +27,51 @@ export function getSession(): AuthUser | null {
 }
 
 export function clearSession() {
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined")
     localStorage.removeItem(SESSION_KEY);
-  }
+}
+
+// ─── Admin Login via Supabase Auth ───────────────────────────────────────────
+export async function adminLogin(
+  email: string,
+  password: string
+): Promise<{ user: AuthUser | null; error?: string }> {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error || !data.user)
+    return { user: null, error: "Invalid admin credentials." };
+
+  // Check admin role via user metadata
+  const role = data.user.user_metadata?.role as Role | undefined;
+  if (role !== "admin")
+    return { user: null, error: "Access denied. Admin only." };
+
+  const authUser: AuthUser = {
+    id:   data.user.id,
+    name: data.user.user_metadata?.name ?? "Admin",
+    email: data.user.email!,
+    role: "admin",
+  };
+
+  saveSession(authUser);
+  return { user: authUser };
+}
+
+export async function signOut() {
+  await supabase.auth.signOut();
+  clearSession();
+}
+
+// Keep mockLogin for associate portal (will migrate later)
+export function mockLogin(email: string, password: string): AuthUser | null {
+  const MOCK: Record<string, AuthUser & { password: string }> = {
+    "mohan@mail.com": {
+      id: "SOL-2025-003", name: "Mohan Verma", email: "mohan@mail.com",
+      password: "assoc123", role: "associate", associateId: "SOL-2025-003", tier: "silver",
+    },
+  };
+  const user = MOCK[email.toLowerCase()];
+  if (!user || user.password !== password) return null;
+  const { password: _, ...authUser } = user;
+  return authUser;
 }

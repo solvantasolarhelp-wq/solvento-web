@@ -3,19 +3,20 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { Sidebar } from "@/components/shared/Sidebar";
+import { Loader2 } from "lucide-react";
 
 const adminNav = [
-  { href: "/admin",             label: "Dashboard",    icon: "⊞" },
-  { href: "/admin/associates",  label: "Associates",   icon: "👥", badge: 2 },
-  { href: "/admin/customers",   label: "Customers",    icon: "🏠" },
-  { href: "/admin/quotes",      label: "Quotations",   icon: "🧾" },
-  { href: "/admin/pricing",     label: "Pricing Panel", icon: "💰" },
-  { href: "/admin/commission",  label: "Commission",   icon: "⚙" },
-  { href: "/admin/reports",     label: "Reports",      icon: "📊" },
+  { href: "/admin",            label: "Dashboard",    icon: "⊞" },
+  { href: "/admin/associates", label: "Associates",   icon: "👥" },
+  { href: "/admin/customers",  label: "Customers",    icon: "🏠" },
+  { href: "/admin/quotes",     label: "Quotations",   icon: "🧾" },
+  { href: "/admin/pricing",    label: "Pricing Panel", icon: "💰" },
+  { href: "/admin/commission", label: "Commission",   icon: "⚙" },
+  { href: "/admin/reports",    label: "Reports",      icon: "📊" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
+  const router   = useRouter();
   const pathname = usePathname();
   const [ready, setReady] = useState(false);
 
@@ -30,7 +31,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!ready) return (
     <div className="min-h-screen flex items-center justify-center bg-sol-dark">
-      <div className="text-sol-teal text-sm animate-pulse">Loading...</div>
+      <Loader2 className="w-6 h-6 animate-spin text-sol-teal" />
     </div>
   );
 
